@@ -1,0 +1,68 @@
+# -----------------------------
+# Python
+# -----------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.log
+
+# -----------------------------
+# Ambientes virtuais
+# -----------------------------
+.venv/
+env/
+venv/
+ENV/
+
+# -----------------------------
+# Dados e resultados grandes
+# -----------------------------
+data/raw/*
+data/processed/*.pkl
+data/processed/*.joblib
+data/processed/*.parquet
+data/processed/*.zip
+data/processed/*.tar.gz
+data/processed/*.7z
+!data/processed/*.csv   # mantém CSVs limpos
+
+# -----------------------------
+# Checkpoints e cache
+# -----------------------------
+.ipynb_checkpoints/
+__MACOSX/
+.DS_Store
+Thumbs.db
+
+# -----------------------------
+# IDEs e editores
+# -----------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# -----------------------------
+# Streamlit cache
+# -----------------------------
+.streamlit/
+.cache/
+logs/
+
+# -----------------------------
+# Arquivos temporários
+# -----------------------------
+*.tmp
+*.bak
+*.swp
+*.orig
+
+# -----------------------------
+# Outros
+# -----------------------------
+*.csv~
+*.xlsx~
