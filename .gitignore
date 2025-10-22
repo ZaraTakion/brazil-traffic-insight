@@ -28,7 +28,9 @@ data/processed/*.parquet
 data/processed/*.zip
 data/processed/*.tar.gz
 data/processed/*.7z
-!data/processed/*.csv   # mantém CSVs limpos
+data/processed/*.csv
+src/model.joblib
+data/processed/accidents_clean.csv
 
 # -----------------------------
 # Checkpoints e cache
