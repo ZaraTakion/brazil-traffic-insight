@@ -1,38 +1,55 @@
-import pandas as pd
+"""Prepare the upstream accident CSV for the notebook, model, and dashboard."""
+
 from pathlib import Path
 
-RAW = Path('data/raw/accidents_brazil.csv')
-CLEAN = Path('data/processed/accidents_clean.csv')
+import pandas as pd
 
-def clean_data():
-    df = pd.read_csv(RAW)
-    print('Antes:', df.shape)
+from src.data_source import ensure_raw_data
+
+ROOT = Path(__file__).resolve().parents[1]
+RAW = ROOT / "data/raw/accidents_brazil.csv"
+CLEAN = ROOT / "data/processed/accidents_clean.csv"
+
+REQUIRED_COLUMNS = {
+    "uf",
+    "municipio",
+    "data_inversa",
+    "tipo_pista",
+    "fase_dia",
+    "condicao_metereologica",
+    "tipo_acidente",
+    "classificacao_acidente",
+}
+
+
+def clean_data(raw_path: Path = RAW, clean_path: Path = CLEAN, downloader=None):
+    """Fetch (if needed), validate, normalize, and save the clean dataset."""
+    raw_path = ensure_raw_data(raw_path, downloader=downloader)
+    df = pd.read_csv(raw_path)
+    print("Antes:", df.shape)
 
     df.columns = df.columns.str.lower().str.strip()
+    missing = sorted(REQUIRED_COLUMNS - set(df.columns))
+    if missing:
+        raise ValueError(
+            "The source CSV does not match the columns used by this project. "
+            f"Missing: {', '.join(missing)}. Available: {', '.join(df.columns)}"
+        )
 
-    # Ajuste fino: inclui 'uf' e 'municipio'
-    col_estado = next((c for c in df.columns if 'estado' in c or 'uf' == c or 'state' in c), None)
-    col_cidade = next((c for c in df.columns if 'municipio' in c or 'munic' in c or 'city' in c), None)
-    col_data = next((c for c in df.columns if 'data' in c or 'date' in c), None)
-
-    if not col_estado or not col_cidade:
-        print('Erro: não encontrei colunas de estado (uf) ou cidade (municipio).')
-        print('Colunas disponíveis:', df.columns.tolist())
-        return
-
-    df.dropna(subset=[col_estado, col_cidade], inplace=True)
-
-    if col_data:
-        df[col_data] = pd.to_datetime(df[col_data], errors='coerce')
-        df = df[df[col_data].notna()]
-
-    df[col_estado] = df[col_estado].astype(str).str.upper().str.strip()
-    df[col_cidade] = df[col_cidade].astype(str).str.title().str.strip()
+    df.dropna(subset=["uf", "municipio"], inplace=True)
+    df["data_inversa"] = pd.to_datetime(df["data_inversa"], errors="coerce")
+    df = df[df["data_inversa"].notna()].copy()
+    df["uf"] = df["uf"].astype(str).str.upper().str.strip()
+    df["municipio"] = df["municipio"].astype(str).str.title().str.strip()
     df.drop_duplicates(inplace=True)
 
-    df.to_csv(CLEAN, index=False)
-    print('Depois:', df.shape)
-    print('Arquivo limpo salvo em:', CLEAN)
+    clean_path = Path(clean_path)
+    clean_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(clean_path, index=False)
+    print("Depois:", df.shape)
+    print("Arquivo limpo salvo em:", clean_path)
+    return df
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     clean_data()
