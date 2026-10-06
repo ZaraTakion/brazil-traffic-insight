@@ -76,6 +76,8 @@ cd brazil-traffic-insight
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+python -m src.pipeline
+python -m src.model
 streamlit run src/dashboard.py
 ```
 
@@ -102,8 +104,21 @@ Abra o portal: [http://localhost:8501](http://localhost:8501)
 | Saída | classificação_acidente |
 | Métricas | Acurácia / F1‑Score |
 
-> _Os arquivos `accidents_clean.csv` e `model.joblib` foram banidos do reino por serem pesados demais (> 100 MB).  
-> Podem ser regenerados localmente via `pipeline.py` e `model.py`._
+### Preparação dos dados
+
+O arquivo bruto não é versionado no Git por causa do tamanho. Ao executar
+`python -m src.pipeline`, o projeto baixa o CSV de origem do KaggleHub e o salva
+em `data/raw/accidents_brazil.csv`; em seguida, gera
+`data/processed/accidents_clean.csv`. Ambos são arquivos locais ignorados pelo
+Git. O modelo pode então ser treinado com `python -m src.model`.
+
+Se o Kaggle pedir autenticação ou consentimento para acessar o dataset, siga as
+instruções do KaggleHub no seu computador. Também é possível baixar o CSV
+manualmente da [página do dataset no Kaggle](https://www.kaggle.com/datasets/mlippo/car-accidents-in-brazil-2017-2023)
+e colocá-lo em `data/raw/accidents_brazil.csv`. O projeto não armazena nem pede
+que você publique credenciais.
+
+Para testar a instalação sem baixar os dados, execute `python -m unittest discover -s tests -v`.
 
 ---
 
